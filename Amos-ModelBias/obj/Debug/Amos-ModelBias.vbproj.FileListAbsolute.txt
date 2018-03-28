@@ -3,3 +3,6 @@ C:\Users\johnh\AppData\Local\AmosDevelopment\Amos\25\Plugins\Amos-ModelBias.pdb
 C:\Users\johnh\Desktop\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.vbprojResolveAssemblyReference.cache
 C:\Users\johnh\Desktop\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.dll
 C:\Users\johnh\Desktop\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.pdb
+C:\Users\johnh\Amos\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.vbprojResolveAssemblyReference.cache
+C:\Users\johnh\Amos\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.dll
+C:\Users\johnh\Amos\Amos-ModelBias\Amos-ModelBias\obj\Debug\Amos-ModelBias.pdb

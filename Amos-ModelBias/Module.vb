@@ -99,7 +99,6 @@ Public Class CustomCode
 
         'Fits the specified model.
         MsgBox(“This plugin will run multiple tests to determine if there is bias and if it is evenly distributed. Whenever prompted by AMOS, please click "“Proceed with the analysis”".”)
-        Amos.pd.AnalyzeCalculateEstimates()
 
         'Function to get the chi-square and df for the unconstrained model
         estimates = getEstimates()
@@ -107,9 +106,6 @@ Public Class CustomCode
         'Zero out the constraints of the paths
         erasePaths(connectedVariables, selectedVariables)
         zeroConstraints(unobservedVariables, observedVariables)
-
-        'Fits the specified model.
-        Amos.pd.AnalyzeCalculateEstimates()
 
         'Function to get the chi-square and df for the zero constrained model
         estimates2 = getEstimates()
@@ -130,9 +126,6 @@ Public Class CustomCode
             erasePaths(connectedVariables, selectedVariables)
             equalConstraints(unobservedVariables, observedVariables)
         End If
-
-        'Fits the specified model.
-        Amos.pd.AnalyzeCalculateEstimates()
 
         unconstrainedPaths(unobservedVariables, observedVariables)
 
@@ -162,16 +155,25 @@ Public Class CustomCode
 
     End Function
 
-    Function getEstimates() As Double()
+    'Gets the cmin And the df For the given model condition.
+    Function GetEstimates() As Double()
 
-        Dim Sem As New AmosEngineLib.AmosEngine
-        Amos.pd.SpecifyModel(Sem)
-        Sem.FitModel()
+        pd.AnalyzeCalculateEstimates()
 
-        Dim estimates() As Double = {Sem.Cmin, Sem.Df}
-        Sem.Dispose()
+        'Properties
+        Dim modelNotes As XmlElement = GetXML("body/div/div[@ntype='models']/div[@ntype='model'][position() = 1]/div[@ntype='modelnotes']/div[@ntype='result']")
 
-        Return estimates
+        'Use regex to extract the chi-square and df from the result
+        Dim result As String = modelNotes.InnerText
+        Dim myRegex As Match = Regex.Match(result, "\d+(\.\d{1,3})?", RegexOptions.IgnoreCase)
+        If myRegex.Success Then
+            Dim baseEstimates() As Double = {Convert.ToDouble(Convert.ToString(myRegex.Value)), Convert.ToDouble(Convert.ToString(myRegex.NextMatch))}
+            GetEstimates = baseEstimates
+        Else
+            MsgBox(modelNotes.InnerText)
+            Exit Function
+        End If
+
     End Function
 
     Private Sub erasePaths(connectedVariables As ArrayList, selectedVariables As ArrayList)
@@ -180,8 +182,6 @@ Public Class CustomCode
 
         'Check for newly created paths.
         For Each variable In pd.PDElements
-
-
             If variable.IsPath Then
                 If selectedVariables.Contains(variable.Variable1.NameOrCaption) Then
                     If Not connectedVariables.Contains(variable.Variable2.NameOrCaption) Then
@@ -196,6 +196,19 @@ Public Class CustomCode
             pd.EditErase(variable)
         Next
     End Sub
+
+    'Use an output table path to get the xml version of the table.
+    Public Function GetXML(path As String) As XmlElement
+
+        'Gets the xpath expression for an output table.
+        Dim doc As Xml.XmlDocument = New Xml.XmlDocument()
+        doc.Load(Amos.pd.ProjectName & ".AmosOutput")
+        Dim nsmgr As XmlNamespaceManager = New XmlNamespaceManager(doc.NameTable)
+        Dim eRoot As Xml.XmlElement = doc.DocumentElement
+
+        Return eRoot.SelectSingleNode(path, nsmgr)
+
+    End Function
 
     Private Sub zeroConstraints(unobservedVariables As Collections.ArrayList, observedVariables As Collections.ArrayList)
 
