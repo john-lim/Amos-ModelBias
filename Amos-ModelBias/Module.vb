@@ -101,7 +101,13 @@ Public Class CustomCode
         MsgBox(“This plugin will run multiple tests to determine if there is bias and if it is evenly distributed. Whenever prompted by AMOS, please click "“Proceed with the analysis”".”)
 
         'Function to get the chi-square and df for the unconstrained model
-        estimates = getEstimates()
+        estimates = GetEstimates()
+
+        If Not GetXML("body/ div / div[@ntype='models']/div[@ntype='model'][position() = 1]/div[@ntype='modelnotes']/div[@ntype='result']").InnerText.Contains("Minimum was achieved") Then
+            MsgBox("Solution could not be generated, try running the model without the model bias plugin to troubleshoot. This is not a plugin problem, but a model problem. Adding a common latent factor often creates instability in measurement models.")
+            erasePaths(connectedVariables, selectedVariables)
+            Exit Function
+        End If
 
         'Zero out the constraints of the paths
         erasePaths(connectedVariables, selectedVariables)
@@ -116,8 +122,8 @@ Public Class CustomCode
         'Significance test for the chi-squared difference after zero constrained test
         If pValue1 > 0.05 Then
             'touchUp(unobservedVariables)
-            conclusion = "The null hypothesis cannot be rejected (i.e., the constrained and unconstrained models are the same or ""invariant"").
-                            You have demonstrated that you were unable to detect any specific response bias affecting your model. Therefore no bias distribution test was made (of equal constraints).
+            conclusion = "The null hypothesis cannot be rejected (i.e., the constrained And unconstrained models are the same Or ""invariant"").
+                            You have demonstrated that you were unable To detect any specific response bias affecting your model. Therefore no bias distribution test was made (Of equal constraints).
                             You can move on to causal modeling, but make sure to retain the Specific Bias construct(s) to include as control in the causal model. "
             printHtml1(estimates, estimates2, pValue1, conclusion)
             Exit Function
